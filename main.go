@@ -18,7 +18,13 @@ func main() {
 	}
 
 	pages := make([]data.Page, 0)
-	conn.QueryRow(context.Background(), "select * from pages limit 100").Scan()
+	rows, err := conn.Query(context.Background(), "select * from pages limit 100", nil)
+	for rows.Next() {
+		page := data.Page{}
+		rows.Scan(&page.Title, &page.Body, &page.CreatedAt, &page.EditedAt)
+		pages = append(pages, page)
+	}
+
 	defer conn.Close(context.Background())
 
 	// APIs
@@ -29,7 +35,7 @@ func main() {
 	app.Get("/rest/api/*", func(ctx *fiber.Ctx) error {
 		page := data.Page{
 			Title:     "",
-			Body:      "asdasdasd",
+			Body:      "asdasdas asd asdasd abc",
 			CreatedAt: time.Now(),
 		}
 		//jsonData, err := json.Marshal(page)
@@ -38,6 +44,8 @@ func main() {
 		//}
 		return ctx.JSON(page)
 	})
+
+	log.Println(pages)
 
 	app.Listen(":4000")
 }

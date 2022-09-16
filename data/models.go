@@ -3,13 +3,15 @@ package data
 import "time"
 
 type Page struct {
+	Id        int64
 	Title     string
 	Body      string
 	CreatedAt time.Time `json:"created_at"`
-	EditedAT  time.Time `json:"edited_at"`
+	EditedAt  time.Time `json:"edited_at"`
 }
 
 type User struct {
+	Id       int64
 	Name     string
 	Key      string
 	FullName string `json:"full_name"`
@@ -31,6 +33,7 @@ type History struct {
 }
 
 type Blog struct {
+	Id        int64
 	Title     string
 	Body      string
 	History   History
