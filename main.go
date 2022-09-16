@@ -54,7 +54,7 @@ func main() {
 	app.Get("/rest/api/*", func(ctx *fiber.Ctx) error {
 		page := data.Page{
 			Title:     "",
-			Body:      "asdasdas asd asdasd abc",
+			Body:      "asda asd asdasd abc",
 			CreatedAt: time.Now(),
 		}
 		//jsonData, err := json.Marshal(page)
