@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"github.com/gofiber/fiber/v2"
+	"github.com/jackc/pgx/v4"
 	"go-wiki-micro/data"
 	"log"
+	"os"
 	"time"
 )
 
@@ -12,19 +14,36 @@ func main() {
 	app := fiber.New()
 
 	// Data
-	conn, err := data.GetConnection()
+	//conn, err := data.GetConnection()
+
+	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
 	}
 
+	println(conn.Config().Config.ValidateConnect)
+
+	//tx, err := conn.Begin(context.Background())
+	if err != nil {
+		log.Println(err)
+	}
 	pages := make([]data.Page, 0)
-	rows, err := conn.Query(context.Background(), "select * from pages limit 100", nil)
+	rows, err := conn.Query(context.Background(), "select * from blogs")
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(rows.Values())
+	//defer rows.Close()
+
 	for rows.Next() {
 		page := data.Page{}
-		rows.Scan(&page.Title, &page.Body, &page.CreatedAt, &page.EditedAt)
+		err2 := rows.Scan(&page.Title, &page.Body, &page.CreatedAt, &page.EditedAt)
+		if err2 != nil {
+			log.Fatalln(err2)
+		}
 		pages = append(pages, page)
 	}
-
+	log.Println(pages)
 	defer conn.Close(context.Background())
 
 	// APIs
@@ -44,8 +63,6 @@ func main() {
 		//}
 		return ctx.JSON(page)
 	})
-
-	log.Println(pages)
 
 	app.Listen(":4000")
 }
